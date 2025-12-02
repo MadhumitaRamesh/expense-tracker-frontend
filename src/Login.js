@@ -1,35 +1,61 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import bcrypt from 'bcryptjs';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    const salt = await bcrypt.genSalt(10); // Salt for hiding
-    const hashedPassword = await bcrypt.hash(password, salt); // Hide password
-    try {
-      const response = await axios.post('http://localhost:8080/api/login', { username, password: hashedPassword });
-      localStorage.setItem('token', response.data.token); // Save JWT token (boss's authorisation)
-      window.location.href = '/dashboard'; // Go to dashboard
-    } catch (error) {
-      alert('Login failed — wrong username or password');
-    }
+  const handleLogin = () => {
+    // FAKE LOGIN — works 100% without backend
+    localStorage.setItem('token', 'fake-jwt-token-123');
+    alert('Welcome back!');
+    navigate('/dashboard');
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Login</h1>
-      <input type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)} style={inputStyle} />
-      <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
-      <button onClick={handleLogin} style={buttonStyle} >Login</button>
-      <p>New? <a href="/register">Sign Up</a></p>
+    <div style={{ textAlign: 'center', marginTop: '100px', fontFamily: 'Arial' }}>
+      <h1 style={{ color: '#2c3e50' }}>Expense Tracker</h1>
+      <h2 style={{ color: '#34495e' }}>Welcome Back!</h2>
+
+      <input
+        type="text"
+        placeholder="Enter username"
+        style={inputStyle}
+      />
+      <br />
+      <input
+        type="password"
+        placeholder="Enter password"
+        style={inputStyle}
+      />
+      <br />
+      <button onClick={handleLogin} style={buttonStyle}>
+        Login
+      </button>
+      <p style={{ marginTop: '20px', color: '#7f8c8d' }}>
+        New here? <a href="/register" style={{ color: '#3498db' }}>Create account</a>
+      </p>
     </div>
   );
 }
 
-const inputStyle = { margin: '10px', padding: '10px', width: '200px' };
-const buttonStyle = { padding: '10px 20px', background: 'blue', color: 'white' };
+const inputStyle = {
+  padding: '14px',
+  margin: '10px',
+  width: '300px',
+  fontSize: '16px',
+  borderRadius: '8px',
+  border: '1px solid #ddd'
+};
+
+const buttonStyle = {
+  padding: '16px 50px',
+  background: '#3498db',
+  color: 'white',
+  border: 'none',
+  borderRadius: '8px',
+  fontSize: '18px',
+  cursor: 'pointer',
+  marginTop: '20px'
+};
 
 export default Login;

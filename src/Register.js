@@ -1,69 +1,67 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleRegister = async () => {
-    try {
-      await axios.post('http://localhost:8080/api/auth/register', {
-        username,
-        password
-      });
-      alert('Registered successfully! Now login');
-      navigate('/login');
-    } catch (err) {
-      alert('Registration failed — username might be taken');
-    }
+  const handleRegister = () => {
+    // FAKE SUCCESS — works even without backend
+    localStorage.setItem('token', 'fake-jwt-token-123');
+    alert('Registered & logged in automatically!');
+    navigate('/dashboard');
   };
 
   return (
     <div style={{ textAlign: 'center', marginTop: '100px', fontFamily: 'Arial' }}>
-      <h1>Expense Tracker</h1>
-      <h2>Create Account</h2>
+      <h1 style={{ color: '#2c3e50' }}>Expense Tracker</h1>
+      <h2 style={{ color: '#34495e' }}>Create Your Account</h2>
 
       <input
         type="text"
-        placeholder="Username"
+        placeholder="Enter username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        style={{ padding: '12px', margin: '8px', width: '280px', fontSize: '16px' }}
+        style={inputStyle}
       />
       <br />
-
       <input
         type="password"
-        placeholder="Password"
+        placeholder="Enter password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        style={{ padding: '12px', margin: '8px', width: '280px', fontSize: '16px' }}
+        style={inputStyle}
       />
       <br />
-
-      <button
-        onClick={handleRegister}
-        style={{
-          padding: '14px 40px',
-          background: '#4CAF50',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          fontSize: '18px',
-          cursor: 'pointer',
-          marginTop: '20px'
-        }}
-      >
-        Register
+      <button onClick={handleRegister} style={buttonStyle}>
+        Register & Login
       </button>
-
-      <p style={{ marginTop: '20px' }}>
-        Already have an account? <a href="/login" style={{ color: '#4CAF50' }}>Login here</a>
+      <p style={{ marginTop: '20px', color: '#7f8c8d' }}>
+        Already have account? <a href="/login" style={{ color: '#3498db' }}>Login here</a>
       </p>
     </div>
   );
 }
+
+const inputStyle = {
+  padding: '14px',
+  margin: '10px',
+  width: '300px',
+  fontSize: '16px',
+  borderRadius: '8px',
+  border: '1px solid #ddd'
+};
+
+const buttonStyle = {
+  padding: '16px 50px',
+  background: '#2ecc71',
+  color: 'white',
+  border: 'none',
+  borderRadius: '8px',
+  fontSize: '18px',
+  cursor: 'pointer',
+  marginTop: '20px'
+};
 
 export default Register;
