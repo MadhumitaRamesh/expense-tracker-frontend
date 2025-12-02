@@ -1,37 +1,69 @@
-import React, { useState } from 'react'; // React to make the page, useState for saving what you type
-import axios from 'axios'; // To send data to backend
-import bcrypt from 'bcryptjs'; // To hide password (hash it)
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Register() {
-  const [username, setUsername] = useState(''); // Save username you type
-  const [password, setPassword] = useState(''); // Save password you type
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  const handleRegister = async () => { // When you click "Register"
-    const salt = await bcrypt.genSalt(10); // Magic salt for hiding password
-    const hashedPassword = await bcrypt.hash(password, salt); // Hide password so no one can see it
+  const handleRegister = async () => {
     try {
-      // Send username and hidden password to backend (encryption comes later)
-      await axios.post('http://localhost:8080/api/register', { username, password: hashedPassword });
-      alert('Signed up! Now login'); // Happy message
-      window.location.href = '/login'; // Go to login page
-    } catch (error) {
-      alert('Sign up failed — try different username'); // Sad message
+      await axios.post('http://localhost:8080/api/auth/register', {
+        username,
+        password
+      });
+      alert('Registered successfully! Now login');
+      navigate('/login');
+    } catch (err) {
+      alert('Registration failed — username might be taken');
     }
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}> // Simple center style
-      <h1>Sign Up</h1> // Title
-      <input type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)} style={inputStyle} /> // Username box
-      <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} style={inputStyle} /> // Password box
-      <button onClick={handleRegister} style={buttonStyle} >Register</button> // Button
-      <p>Already have account? <a href="/login">Login</a></p> // Link to login
+    <div style={{ textAlign: 'center', marginTop: '100px', fontFamily: 'Arial' }}>
+      <h1>Expense Tracker</h1>
+      <h2>Create Account</h2>
+
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        style={{ padding: '12px', margin: '8px', width: '280px', fontSize: '16px' }}
+      />
+      <br />
+
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={{ padding: '12px', margin: '8px', width: '280px', fontSize: '16px' }}
+      />
+      <br />
+
+      <button
+        onClick={handleRegister}
+        style={{
+          padding: '14px 40px',
+          background: '#4CAF50',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          fontSize: '18px',
+          cursor: 'pointer',
+          marginTop: '20px'
+        }}
+      >
+        Register
+      </button>
+
+      <p style={{ marginTop: '20px' }}>
+        Already have an account? <a href="/login" style={{ color: '#4CAF50' }}>Login here</a>
+      </p>
     </div>
   );
 }
-
-// Nice looks for boxes and button
-const inputStyle = { margin: '10px', padding: '10px', width: '200px' };
-const buttonStyle = { padding: '10px 20px', background: 'green', color: 'white' };
 
 export default Register;
