@@ -1,37 +1,29 @@
+// src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Register from './Register';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
-import Dashboard from './Dashboard';
-
-// This checks if user is logged in (using the JWT token we saved)
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/login" />;
-};
+import Register from './Register';
+import Dashboard from './Dashboard';              // update path if file lives in pages/
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        {/* Anyone can go to these pages */}
-        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
-        
-        {/* Only logged-in users can go to dashboard */}
-        <Route 
-          path="/dashboard" 
+        <Route path="/register" element={<Register />} />
+
+        <Route
+          path="/dashboard"
           element={
-            <PrivateRoute>
+            <ProtectedRoute>
               <Dashboard />
-            </PrivateRoute>
-          } 
+            </ProtectedRoute>
+          }
         />
-        
-        {/* If someone types wrong URL, send to login */}
-        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
