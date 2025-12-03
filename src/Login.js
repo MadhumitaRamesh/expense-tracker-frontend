@@ -8,15 +8,16 @@ function Login() {
   const navigate = useNavigate();                // FIXED: "the navigate" → "const navigate"
 
   const handleLogin = async () => {
-    try {
-      const res = await api.post('/auth/login', { username, password });
-      localStorage.setItem('token', res.data.token);
-      alert('Login successful!');
-      navigate('/dashboard');
-    } catch (err) {
-      alert('Wrong username or password');
-    }
-  };
+  const data = { username, password }; // Raw
+  const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), 'supersecretbabyenckey').toString(); // Encryption
+  try {
+    const response = await axios.post('http://localhost:8080/api/login', encryptedData, { headers: { 'Content-Type': 'text/plain' } });
+    localStorage.setItem('token', response.data.token); // Save JWT (boss's authorisation)
+    window.location.href = '/dashboard';
+  } catch (error) {
+    alert('Login failed');
+  }
+};
 
   return (
     <div style={{ textAlign: 'center', marginTop: '100px', fontFamily: 'Arial' }}>

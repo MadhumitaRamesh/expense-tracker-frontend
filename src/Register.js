@@ -7,15 +7,17 @@ function Register() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleRegister = async () => {
-    try {
-      await api.post('/auth/register', { username, password });
-      alert('Registered! Now login');
-      navigate('/login');
-    } catch (err) {
-      alert('Username already taken');
-    }
-  };
+ const handleRegister = async () => {
+  const data = { username, password }; // Raw password
+  const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), 'supersecretbabyenckey').toString(); // Boss's encryption - hides everything
+  try {
+    await axios.post('http://localhost:8080/api/register', encryptedData, { headers: { 'Content-Type': 'text/plain' } }); // Send encrypted
+    alert('Signed up! Now login');
+    window.location.href = '/login';
+  } catch (error) {
+    alert('Sign up failed');
+  }
+};
 
   return (
     <div style={{ textAlign: 'center', marginTop: '100px', fontFamily: 'Arial' }}>
