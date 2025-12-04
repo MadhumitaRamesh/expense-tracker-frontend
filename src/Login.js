@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { encrypt, decrypt } from './utils/encryption';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -9,27 +10,44 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
-        username,
-        password,
+      // Encrypt username and password before sending
+      const encryptedUsername = encrypt(username);
+      const encryptedPassword = encrypt(password);
+
+      const res = await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/auth/login`, {
+        username: encryptedUsername,
+        password: encryptedPassword,
       });
 
-      // try to read token + username from backend response
-      const tokenFromServer = res.data?.token;
-      const usernameFromServer = res.data?.username || username;
+      // Decrypt token and username from backend response
+      const encryptedToken = res.data?.token;
+      const encryptedUsernameResponse = res.data?.username;
 
-      if (tokenFromServer) {
+      if (encryptedToken) {
+        const tokenFromServer = decrypt(encryptedToken);
+        const usernameFromServer = decrypt(encryptedUsernameResponse);
+
         // ✅ store JWT token
         localStorage.setItem('token', tokenFromServer);
+        // ✅ store username
+        localStorage.setItem('username', usernameFromServer);
+
+        alert('Login successful!');
+        navigate('/dashboard');
+      } else {
+        alert('Login failed: Invalid response');
       }
-
-      // ✅ always store username (from server if available)
-      localStorage.setItem('username', usernameFromServer);
-
-      alert('Login successful!');
-      navigate('/dashboard');
     } catch (e) {
-      alert('Error: ' + (e.response?.data || e.message));
+      // Try to decrypt error message if it's encrypted
+      let errorMessage = e.response?.data || e.message;
+      try {
+        if (typeof errorMessage === 'string' && errorMessage.length > 20) {
+          errorMessage = decrypt(errorMessage);
+        }
+      } catch (decryptError) {
+        // If decryption fails, use original message
+      }
+      alert('Error: ' + errorMessage);
     }
   };
 

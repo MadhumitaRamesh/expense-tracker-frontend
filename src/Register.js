@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { encrypt, decrypt } from './utils/encryption';
 
 function Register() {
   const [username, setUsername] = useState('');
@@ -7,16 +8,29 @@ function Register() {
 
   const handleRegister = async () => {
     try {
-      await axios.post('http://localhost:8080/api/auth/register', {
-        username,
-        password
+      // Encrypt username and password before sending
+      const encryptedUsername = encrypt(username);
+      const encryptedPassword = encrypt(password);
+
+      await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/auth/register`, {
+        username: encryptedUsername,
+        password: encryptedPassword
       });
 
       alert('Registered successfully!');
       window.location.href = '/login';
 
     } catch (e) {
-      alert('Error: ' + (e.response?.data || e.message));
+      // Try to decrypt error message if it's encrypted
+      let errorMessage = e.response?.data || e.message;
+      try {
+        if (typeof errorMessage === 'string' && errorMessage.length > 20) {
+          errorMessage = decrypt(errorMessage);
+        }
+      } catch (decryptError) {
+        // If decryption fails, use original message
+      }
+      alert('Error: ' + errorMessage);
     }
   };
 
