@@ -9,11 +9,24 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post('http://localhost:8080/api/auth/login', { username, password });
-      // store a simple session marker (or token if backend returns one later)
-      localStorage.setItem('username', username);
+      const res = await axios.post('http://localhost:8080/api/auth/login', {
+        username,
+        password,
+      });
 
-      // navigate inside the app
+      // try to read token + username from backend response
+      const tokenFromServer = res.data?.token;
+      const usernameFromServer = res.data?.username || username;
+
+      if (tokenFromServer) {
+        // ✅ store JWT token
+        localStorage.setItem('token', tokenFromServer);
+      }
+
+      // ✅ always store username (from server if available)
+      localStorage.setItem('username', usernameFromServer);
+
+      alert('Login successful!');
       navigate('/dashboard');
     } catch (e) {
       alert('Error: ' + (e.response?.data || e.message));
