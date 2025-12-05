@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import { encrypt, decrypt } from './utils/encryption';
 
 function Register() {
@@ -60,7 +61,7 @@ function Register() {
         Register
       </button>
 
-      <p>Already have an account? <a href="/login">Login here</a></p>
+      <p>Already have an account? <Link to="/login">Login here</Link></p>
     </div>
   );
 }
