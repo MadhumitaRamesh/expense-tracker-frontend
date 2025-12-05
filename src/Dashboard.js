@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 function Dashboard() {
@@ -14,6 +15,7 @@ function Dashboard() {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('Food');
   const [note, setNote] = useState('');
+  const navigate = useNavigate();
 
   const addExpense = () => {
     if (!amount) return;
@@ -121,7 +123,7 @@ function Dashboard() {
       </div>
 
       <div style={{ textAlign: 'center', margin: '50px 0' }}>
-        <button onClick={() => { localStorage.removeItem('token'); window.location.href = '/login'; }} style={logoutButton}>
+        <button onClick={() => { localStorage.removeItem('token'); navigate('/login'); }} style={logoutButton}>
           Logout
         </button>
       </div>
