@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { encrypt, decrypt } from './utils/encryption';
 
 function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleRegister = async () => {
     try {
@@ -19,7 +20,7 @@ function Register() {
       });
 
       alert('Registered successfully!');
-      window.location.href = '/login';
+      navigate('/login');
 
     } catch (e) {
       // Try to decrypt error message if it's encrypted
