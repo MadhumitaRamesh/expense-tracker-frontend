@@ -30,13 +30,23 @@ function Dashboard() {
       const res = await axios.get(`${API_URL}/api/expenses`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log('Successfully fetched expenses:', res.data.length);
       setExpenses(res.data);
     } catch (e) {
       console.error('Error fetching expenses:', e);
+      if (e.response) {
+        console.error('Response status:', e.response.status);
+        console.error('Response data:', e.response.data);
+      } else {
+        console.error('No response received - potential CORS or Network error');
+      }
+
       if (e.response?.status === 401 || e.response?.status === 403) {
-        console.log('Session expired or unauthorized, redirecting to login');
+        console.log('Session invalid (401/403), redirecting to login');
         localStorage.removeItem('token');
         navigate('/login');
+      } else {
+        console.log('API call failed but not 401/403, not logging out');
       }
     }
   };
