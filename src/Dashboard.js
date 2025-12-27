@@ -1,37 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 function Dashboard() {
-  const [expenses, setExpenses] = useState([
-    { id: 1, amount: 50, category: 'Food', date: '2025-12-02', note: 'Lunch' },
-    { id: 2, amount: 30, category: 'Transport', date: '2025-12-02', note: 'Uber' },
-    { id: 3, amount: 120, category: 'Shopping', date: '2025-12-01', note: 'Clothes' },
-    { id: 4, amount: 80, category: 'Bills', date: '2025-11-30', note: 'Internet' },
-    { id: 5, amount: 60, category: 'Food', date: '2025-11-29', note: 'Dinner' },
-    { id: 6, amount: 40, category: 'Transport', date: '2025-11-28', note: 'Bus' },
-  ]);
-
+  const [expenses, setExpenses] = useState([]);
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('Food');
   const [note, setNote] = useState('');
   const navigate = useNavigate();
 
-  const addExpense = () => {
-    if (!amount) return;
-    const newExpense = {
-      id: Date.now(),
-      amount: parseFloat(amount),
-      category,
-      date: new Date().toISOString().split('T')[0],
-      note
-    };
-    setExpenses([...expenses, newExpense]);
-    setAmount(''); setNote('');
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+  const token = localStorage.getItem('token');
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    fetchExpenses();
+  }, [token, navigate]);
+
+  const fetchExpenses = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/expenses`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setExpenses(res.data);
+    } catch (e) {
+      console.error('Error fetching expenses:', e);
+      if (e.response?.status === 401 || e.response?.status === 403) {
+        navigate('/login');
+      }
+    }
   };
 
-  const deleteExpense = (id) => {
-    setExpenses(expenses.filter(e => e.id !== id));
+  const addExpense = async () => {
+    if (!amount) return;
+    try {
+      const newExpense = {
+        amount: parseFloat(amount),
+        category,
+        date: new Date().toISOString().split('T')[0],
+        note
+      };
+      await axios.post(`${API_URL}/api/expenses`, newExpense, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAmount(''); 
+      setNote('');
+      fetchExpenses();
+    } catch (e) {
+      console.error('Error adding expense:', e);
+      alert('Failed to add expense');
+    }
+  };
+
+  const deleteExpense = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/api/expenses/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchExpenses();
+    } catch (e) {
+      console.error('Error deleting expense:', e);
+      alert('Failed to delete expense');
+    }
   };
 
   const total = expenses.reduce((sum, e) => sum + e.amount, 0);
