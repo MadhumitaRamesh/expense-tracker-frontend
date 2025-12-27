@@ -11,18 +11,22 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-  const token = localStorage.getItem('token');
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    console.log('Dashboard mounted, token present:', !!token);
+
     if (!token) {
+      console.log('No token found, redirecting to login');
       navigate('/login');
       return;
     }
-    fetchExpenses();
-  }, [token, navigate]);
+    fetchExpenses(token);
+  }, [navigate]);
 
-  const fetchExpenses = async () => {
+  const fetchExpenses = async (token) => {
     try {
+      console.log('Fetching expenses from:', `${API_URL}/api/expenses`);
       const res = await axios.get(`${API_URL}/api/expenses`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -30,6 +34,8 @@ function Dashboard() {
     } catch (e) {
       console.error('Error fetching expenses:', e);
       if (e.response?.status === 401 || e.response?.status === 403) {
+        console.log('Session expired or unauthorized, redirecting to login');
+        localStorage.removeItem('token');
         navigate('/login');
       }
     }
@@ -37,6 +43,7 @@ function Dashboard() {
 
   const addExpense = async () => {
     if (!amount) return;
+    const token = localStorage.getItem('token');
     try {
       const newExpense = {
         amount: parseFloat(amount),
@@ -47,7 +54,7 @@ function Dashboard() {
       await axios.post(`${API_URL}/api/expenses`, newExpense, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setAmount(''); 
+      setAmount('');
       setNote('');
       fetchExpenses();
     } catch (e) {
@@ -57,11 +64,12 @@ function Dashboard() {
   };
 
   const deleteExpense = async (id) => {
+    const token = localStorage.getItem('token');
     try {
       await axios.delete(`${API_URL}/api/expenses/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchExpenses();
+      fetchExpenses(token);
     } catch (e) {
       console.error('Error deleting expense:', e);
       alert('Failed to delete expense');
