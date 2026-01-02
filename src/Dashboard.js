@@ -37,16 +37,18 @@ function Dashboard() {
       if (e.response) {
         console.error('Response status:', e.response.status);
         console.error('Response data:', e.response.data);
+        console.error('Response headers:', e.response.headers);
       } else {
-        console.error('No response received - potential CORS or Network error');
+        console.error('No response received - potential CORS or Network error. Check if backend is running on:', API_URL);
       }
 
       if (e.response?.status === 401 || e.response?.status === 403) {
-        console.log('Session invalid (401/403), redirecting to login');
-        localStorage.removeItem('token');
-        navigate('/login');
-      } else {
-        console.log('API call failed but not 401/403, not logging out');
+        console.warn('Session invalid or access forbidden (401/403), redirecting to login in 1.5 seconds...');
+        // Add a small delay so user can see the dashboard briefly or we can see the logs
+        setTimeout(() => {
+          localStorage.removeItem('token');
+          // navigate('/login'); // Temporarily commented out to debug the 403 issue visually if it persists
+        }, 1500);
       }
     }
   };
