@@ -57,21 +57,27 @@ function Dashboard() {
     if (!amount) return;
     const token = localStorage.getItem('token');
     try {
+      console.log('Adding expense:', { amount, category, note });
       const newExpense = {
         amount: parseFloat(amount),
         category,
         date: new Date().toISOString().split('T')[0],
         note
       };
-      await axios.post(`${API_URL}/api/expenses`, newExpense, {
+      const res = await axios.post(`${API_URL}/api/expenses`, newExpense, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log('Successfully added expense:', res.data);
       setAmount('');
       setNote('');
-      fetchExpenses();
+      fetchExpenses(token); // Fix: Send token to fetchExpenses
     } catch (e) {
       console.error('Error adding expense:', e);
-      alert('Failed to add expense');
+      if (e.response) {
+        console.error('Response status:', e.response.status);
+        console.error('Response data:', e.response.data);
+      }
+      alert('Failed to add expense: ' + (e.response?.data || e.message));
     }
   };
 
