@@ -41,5 +41,5 @@ API Used
 POST {REACT_APP_API_URL}/api/auth/login
 
 Requirements
-Node.js and npm must be installed..
+Node.js and npm must be installed.
 
